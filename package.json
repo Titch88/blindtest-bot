@@ -8,8 +8,10 @@
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
+    "fuzzball": "^2.0.0",
     "nodemon": "^2.0.12",
-    "ytdl": "^1.4.1"
+    "ytdl-core": "^4.9.0",
+    "ytpl": "^2.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

@@ -8,24 +8,37 @@ const client = new Discord.Client();
 
 const owner = process.env.OWNER;
 const self = process.env.CLIENTID;
+
 client.game = {
   currentlyPlaying: false,
+  voiceChannel: null,
+  voiceConnection: null,
+  textChannel: null,
+
+  // {name : "name of the song", url: 'url of youtube link'}
   songList: [],
+  // {name : "name of the player", score : int}
   players: []
 };
 
-const onMessageHandler = message => {
+const onMessageHandler = async message => {
   const { channel, author, content } = message;
   // ignoring message from himself
   if (author.id === self) return;
 
   if (isCommand(content)) {
-    const [commandName, ...args] = content
-      .trim()
-      .toLowerCase()
-      .split(" ");
+    const [commandName, ...args] = content.trim().split(" ");
 
-    channel.send("hello");
+    const command = commands.find(({ trigger }) =>
+      commandName.includes(trigger)
+    );
+    console.log(commands);
+    if (command) {
+      const answer = command.action(client, args, author, message);
+      if (answer) {
+        channel.send(answer);
+      }
+    }
   } else if (client.game.currentlyPlaying) {
     // handling user responses
   }
