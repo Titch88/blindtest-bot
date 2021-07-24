@@ -1,8 +1,10 @@
-const Discord = require("discord.js");
 require("dotenv").config();
 
+import Discord from "discord.js";
+import fuzz from "fuzzball";
+
 import commands from "./commands";
-import { isCommand } from "./helpers";
+import { isCommand, wait, playUrl, getScoreboard } from "./helpers";
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
@@ -17,7 +19,8 @@ client.game = {
 
   // {name : "name of the song", url: 'url of youtube link'}
   songList: [],
-  // {name : "name of the player", score : int}
+  currentSongIndex: 0,
+  // {[nick] : score }
   players: []
 };
 
@@ -32,15 +35,46 @@ const onMessageHandler = async message => {
     const command = commands.find(({ trigger }) =>
       commandName.includes(trigger)
     );
-    console.log(commands);
     if (command) {
-      const answer = command.action(client, args, author, message);
+      const answer = await command.action(client, args, author, message);
       if (answer) {
         channel.send(answer);
       }
     }
-  } else if (client.game.currentlyPlaying) {
-    // handling user responses
+  } else if (
+    client.game.currentlyPlaying &&
+    channel.id === client.game.textChannel.id
+  ) {
+    const currentIndex = client.game.currentSongIndex;
+    const currentAnswer = client.game.songList[currentIndex].name;
+    const ratio = fuzz.ratio(currentAnswer, content);
+    console.log(fuzz.ratio(currentAnswer, content), currentAnswer, content);
+    if (ratio > 50) {
+      channel.send(
+        `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer}. (Ratio : ${ratio})`
+      );
+      client.game = {
+        ...client.game,
+        players: {
+          ...client.game.players,
+          [author.username]: (client.game.players[author.username] || 0) + 1
+        },
+        currentSongIndex: client.game.currentSongIndex + 1
+      };
+      // check if game is over
+      if (client.game.currentSongIndex === client.game.songList.length) {
+        channel.send(`Partie terminée`);
+        channel.send(getScoreboard(client.game.players));
+      } else {
+        channel.send(`Chanson suivante`);
+        client.game.streamer.destroy();
+        await wait(5000);
+        client.game.streamer = playUrl(
+          client.game.songList[client.game.currentSongIndex].url,
+          client.game.voiceConnection
+        );
+      }
+    }
   }
 };
 
