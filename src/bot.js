@@ -66,7 +66,7 @@ const onMessageHandler = async (message) => {
 
       if (ratio > MIN_RATIO) {
         channel.send(
-          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer}. (Ratio : ${ratio})`, {tts: true}
+          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer}. (Ratio : ${ratio})`
         );
         client.game = {
           ...client.game,
@@ -83,7 +83,7 @@ const onMessageHandler = async (message) => {
       console.log("ratioTitle", ratioTitle, "ratioArtist", ratioArtist);
       if (ratioTitle > MIN_RATIO && ratioArtist > MIN_RATIO) {
         channel.send(
-          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer.artist} - ${currentAnswer.title}.`, {tts: true}
+          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer.artist} - ${currentAnswer.title}.`
         );
         client.game = {
           ...client.game,
@@ -99,7 +99,7 @@ const onMessageHandler = async (message) => {
             currentAnswer.title
           }. ${
             client.game.artistFound ? "" : "Il faut encore trouver l'artiste !"
-          }`, {tts: true}
+          }`
         );
         client.game = {
           ...client.game,
@@ -116,7 +116,7 @@ const onMessageHandler = async (message) => {
             currentAnswer.artist
           }. ${
             client.game.titleFound ? "" : "Il faut encore trouver le titre !"
-          }`, {tts: true}
+          }`
         );
         client.game = {
           ...client.game,
