@@ -74,12 +74,14 @@ export const smartRatio = (answer, messageContent) => {
   }
 };
 
-export const goToNextSong = async (client, channel) => {
+export const goToNextSong = async (client, channel, skipping = false) => {
   client.game = {
     ...client.game,
     currentSongIndex: client.game.currentSongIndex + 1
   };
-  await wait(10000);
+  if (!skipping) {
+    await wait(10000);
+  }
   // check if game is over
   if (client.game.currentSongIndex === client.game.songList.length) {
     channel.send(`Partie terminée`);

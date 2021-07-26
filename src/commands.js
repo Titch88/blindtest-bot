@@ -88,7 +88,7 @@ const endGame = {
 // skip current song
 const skipCurrentSong = {
   trigger: "!skip",
-  action : async (client, channel) => {
+  action : async (client, args, author, message) => {
     let stringToReturn = "";
     const currentAnswer = client.game.songList[client.game.currentSongIndex].name;
     if (typeof currentAnswer === "string")
@@ -99,7 +99,7 @@ const skipCurrentSong = {
     {
       stringToReturn = `Skipped song : ${currentAnswer.artist} - ${currentAnswer.title}`;
     }
-    goToNextSong(client, channel);
+    await goToNextSong(client, message.channel, true);
     return stringToReturn;
   },
   help: "`!skip`: passe la chanson courante"

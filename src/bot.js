@@ -131,7 +131,7 @@ const onMessageHandler = async message => {
     }
 
     if (client.game.goToNextSong) {
-      goToNextSong(client, channel);
+      await goToNextSong(client, channel);
     }
   }
 };
