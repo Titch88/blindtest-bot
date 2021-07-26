@@ -35,7 +35,14 @@ const onMessageHandler = async message => {
     const command = commands.find(({ trigger }) =>
       commandName.includes(trigger)
     );
-    if (command) {
+    console.log(commandName);
+    if (commandName === "!help") {
+      const answer = commands.reduce(
+        (acc, { help }) => `${acc}\n${help}`,
+        "\n"
+      );
+      channel.send(answer);
+    } else if (command) {
       const answer = await command.action(client, args, author, message);
       if (answer) {
         channel.send(answer);
@@ -61,14 +68,17 @@ const onMessageHandler = async message => {
         },
         currentSongIndex: client.game.currentSongIndex + 1
       };
+      await wait(2000);
+
       // check if game is over
       if (client.game.currentSongIndex === client.game.songList.length) {
         channel.send(`Partie terminée`);
+        client.game.streamer.destroy();
         channel.send(getScoreboard(client.game.players));
       } else {
         channel.send(`Chanson suivante`);
         client.game.streamer.destroy();
-        await wait(5000);
+        await wait(2000);
         client.game.streamer = playUrl(
           client.game.songList[client.game.currentSongIndex].url,
           client.game.voiceConnection

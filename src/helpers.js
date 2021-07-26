@@ -14,7 +14,7 @@ const buildPlaylist = async youtubeUrl => {
     });
     const name = extracted ? `${extracted[0]} - ${extracted[1]}` : title;
     return {
-      name,
+      name: name.replace(/\([^()]*\)/g, ""), // remove things in parenthesis
       url: shortUrl
     };
   });
@@ -30,8 +30,34 @@ const getScoreboard = players => {
   return Object.entries(players)
     .sort((a, b) => a[0] < b[0])
     .reduce((acc, [nick, score]) => {
-      return `${acc}${nick} - ${score}\n`;
-    }, "");
+      return `${acc}${nick} - ${score} points\n`;
+    }, "\n");
 };
 
-export { isCommand, buildPlaylist, wait, playUrl, getScoreboard };
+/*
+currentlyPlaying: false,
+voiceChannel: null,
+voiceConnection: null,
+textChannel: null,
+
+// {name : "name of the song", url: 'url of youtube link'}
+songList: [],
+currentSongIndex: 0,
+// {[nick] : score }
+players: []
+*/
+
+const resetState = client => {
+  if (client.game.voiceConnection) client.game.voiceConnection.disconnect();
+  client.game = {
+    currentlyPlaying: false,
+    voiceChannel: null,
+    voiceConnection: null,
+    textChannel: null,
+    songList: [],
+    currentSongIndex: 0,
+    players: []
+  };
+};
+
+export { isCommand, buildPlaylist, wait, playUrl, getScoreboard, resetState };
