@@ -30,7 +30,10 @@ export const buildPlaylist = async (youtubeUrl) => {
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const playUrl = (url, connection) =>
-  connection.play(ytdl(url, { filter: "audioonly" }), {seek: 20, volume: 0.5 });
+  connection.play(ytdl(url, { filter: "audioonly" }), {
+    seek: 20,
+    volume: 0.5,
+  });
 
 export const getScoreboard = (players) => {
   return Object.entries(players)
