@@ -5,6 +5,7 @@ import {
   playUrl,
   resetState,
   wait,
+  formatSongName,
 } from "./helpers";
 
 // create a game, expect a playlist youtube. can be overwritten.
@@ -44,9 +45,18 @@ const launchGame = {
     };
     wait(1000).then(() => {
       message.channel.send("La partie demarre !");
+      const streamer = playUrl(client.game.songList[0].url, voiceConnection);
+      streamer.on("error", () => {
+        message.channel.send(
+          `Une erreur sur cette chanson : ${formatSongName(
+            client.game.songList[client.game.currentSongIndex].name
+          )}`
+        );
+        goToNextSong(client, message.channel, true);
+      });
       client.game = {
         ...client.game,
-        streamer: playUrl(client.game.songList[0].url, voiceConnection),
+        streamer,
       };
     });
 
