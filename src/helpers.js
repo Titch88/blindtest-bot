@@ -30,11 +30,11 @@ export const buildPlaylist = async (youtubeUrl) => {
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const playUrl = (url, connection) =>
-  connection.play(ytdl(url, { filter: "audioonly" }));
+  connection.play(ytdl(url, { filter: "audioonly" }), {seek: 20, volume: 0.5 });
 
 export const getScoreboard = (players) => {
   return Object.entries(players)
-    .sort((a, b) => a[0] < b[0])
+    .sort((a, b) => a[1] < b[1])
     .reduce((acc, [nick, score]) => {
       return `${acc}${nick} - ${score} points\n`;
     }, "\n");
