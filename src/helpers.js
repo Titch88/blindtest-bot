@@ -67,7 +67,7 @@ const resetState = client => {
 };
 
 const smartRatio = (answer, messageContent) => {
-  if (answer.length <= messageContent) {
+  if (answer.length <= messageContent.length) {
     return fuzz.partial_ratio(answer, messageContent);
   } else {
     return fuzz.ratio(answer, messageContent);
