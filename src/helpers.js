@@ -29,11 +29,14 @@ export const buildPlaylist = async (youtubeUrl) => {
 
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const playUrl = (url, connection) =>
-  connection.play(ytdl(url, { filter: "audioonly" }), {
+export const playUrl = (url, connection) => {
+  const stream = ytdl(url, { filter: "audioonly" });
+  const dispatcher = connection.play(stream, {
     seek: 20,
     volume: 0.5,
   });
+  return dispatcher;
+};
 
 export const getScoreboard = (players) => {
   return Object.entries(players)
@@ -77,12 +80,16 @@ export const smartRatio = (answer, messageContent) => {
   }
 };
 
-export const goToNextSong = async (client, channel, skipping = false) => {
+export const formatSongName = (name) => {
+  return typeof name === "string" ? name : `${name.artist} - ${name.title}`;
+};
+
+export const goToNextSong = async (client, channel, skip = false) => {
   client.game = {
     ...client.game,
     currentSongIndex: client.game.currentSongIndex + 1,
   };
-  if (!skipping) {
+  if (!skip) {
     await wait(10000);
   }
   // check if game is over
@@ -94,12 +101,21 @@ export const goToNextSong = async (client, channel, skipping = false) => {
     channel.send(`Chanson suivante`);
     client.game.streamer.destroy();
     await wait(2000);
+    const streamer = playUrl(
+      client.game.songList[client.game.currentSongIndex].url,
+      client.game.voiceConnection
+    );
+    streamer.on("error", () => {
+      channel.send(
+        `Une erreur sur cette chanson : ${formatSongName(
+          client.game.songList[client.game.currentSongIndex].name
+        )}`
+      );
+      goToNextSong(client, channel, skip);
+    });
     client.game = {
       ...client.game,
-      streamer: playUrl(
-        client.game.songList[client.game.currentSongIndex].url,
-        client.game.voiceConnection
-      ),
+      streamer,
       goToNextSong: false,
       artistFound: false,
       titleFound: false,
