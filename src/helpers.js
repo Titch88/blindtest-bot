@@ -1,6 +1,7 @@
 import ytdl from "ytdl-core";
 import ytpl from "ytpl";
 import getArtistTitle from "get-artist-title";
+import fuzz from "fuzzball";
 
 const isCommand = content => content[0] === "!";
 
@@ -8,13 +9,18 @@ const isCommand = content => content[0] === "!";
 const buildPlaylist = async youtubeUrl => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
-    const extracted = getArtistTitle(title, {
+    const extracted = getArtistTitle(title.replace(/\([^()]*\)/g, ""), {
       defaultArtist: "",
       defaultTitle: ""
     });
-    const name = extracted ? `${extracted[0]} - ${extracted[1]}` : title;
+    const name = extracted
+      ? {
+          artist: extracted[0],
+          title: extracted[1]
+        }
+      : title;
     return {
-      name: name.replace(/\([^()]*\)/g, ""), // remove things in parenthesis
+      name,
       url: shortUrl
     };
   });
@@ -60,4 +66,20 @@ const resetState = client => {
   };
 };
 
-export { isCommand, buildPlaylist, wait, playUrl, getScoreboard, resetState };
+const smartRatio = (answer, messageContent) => {
+  if (answer.length <= messageContent.length) {
+    return fuzz.partial_ratio(answer, messageContent);
+  } else {
+    return fuzz.ratio(answer, messageContent);
+  }
+};
+
+export {
+  isCommand,
+  buildPlaylist,
+  wait,
+  playUrl,
+  getScoreboard,
+  resetState,
+  smartRatio
+};
