@@ -58,20 +58,20 @@ const launchGame = {
 
 const getScore = {
   trigger: "!score",
-  action: async (client, args, author) => {
+  action: async client => {
     return getScoreboard(client.game.players);
   },
   help: "`!score` : renvoie le score actuel"
 };
 
 // not working
-const setVolume = {
-  trigger: "!volume",
-  action: async (client, args) => {
-    await client.game.streamer.setVolume(Number(args[1]));
-    return "Done";
-  }
-};
+// const setVolume = {
+//   trigger: "!volume",
+//   action: async (client, args) => {
+//     await client.game.streamer.setVolume(Number(args[1]));
+//     return "Done";
+//   }
+// };
 
 // end a game, only works if it was already launched
 

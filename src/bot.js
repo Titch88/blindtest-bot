@@ -1,3 +1,4 @@
+//eslint-disable-next-line
 require("dotenv").config();
 
 import Discord from "discord.js";
@@ -8,7 +9,6 @@ import { isCommand, wait, playUrl, getScoreboard } from "./helpers";
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
-const owner = process.env.OWNER;
 const self = process.env.CLIENTID;
 
 client.game = {

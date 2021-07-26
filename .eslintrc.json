@@ -1,7 +1,11 @@
 {
   "env": {
     "node": true,
+    "commonjs": true,
     "es2021": true
+  },
+  "globals": {
+    "process": true
   },
   "extends": "eslint:recommended",
   "parserOptions": {

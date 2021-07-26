@@ -18,10 +18,13 @@
     "@babel/core": "^7.12.10",
     "@babel/node": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
-    "eslint": "^7.18.0"
+    "eslint": "^7.18.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-node": "^11.1.0"
   },
   "scripts": {
     "start": "babel-node bot.js",
-    "dev": "nodemon --exec babel-node src/bot.js"
+    "dev": "nodemon --exec babel-node src/bot.js",
+    "lint": "eslint src"
   }
 }
