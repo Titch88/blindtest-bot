@@ -42,7 +42,7 @@ const launchGame = {
       voiceConnection,
       currentlyPlaying: true
     };
-    wait(10000).then(() => {
+    wait(1000).then(() => {
       message.channel.send("La partie demarre !");
       client.game = {
         ...client.game,

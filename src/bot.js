@@ -1,21 +1,25 @@
 require("dotenv").config();
 
 import Discord from "discord.js";
-import fuzz from "fuzzball";
 
 import commands from "./commands";
-import { isCommand, wait, playUrl, getScoreboard } from "./helpers";
+import { isCommand, wait, playUrl, getScoreboard, smartRatio } from "./helpers";
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
 const owner = process.env.OWNER;
 const self = process.env.CLIENTID;
 
+const MIN_RATIO = 70;
+
 client.game = {
   currentlyPlaying: false,
   voiceChannel: null,
   voiceConnection: null,
   textChannel: null,
+  titleFound: false,
+  artistFound: false,
+  goToNextSong: false,
 
   // {name : "name of the song", url: 'url of youtube link'}
   songList: [],
@@ -35,7 +39,6 @@ const onMessageHandler = async message => {
     const command = commands.find(({ trigger }) =>
       commandName.includes(trigger)
     );
-    console.log(commandName);
     if (commandName === "!help") {
       const answer = commands.reduce(
         (acc, { help }) => `${acc}\n${help}`,
@@ -52,24 +55,87 @@ const onMessageHandler = async message => {
     client.game.currentlyPlaying &&
     channel.id === client.game.textChannel.id
   ) {
-    const currentIndex = client.game.currentSongIndex;
-    const currentAnswer = client.game.songList[currentIndex].name;
-    const ratio = fuzz.ratio(currentAnswer, content);
-    console.log(fuzz.ratio(currentAnswer, content), currentAnswer, content);
-    if (ratio > 50) {
-      channel.send(
-        `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer}. (Ratio : ${ratio})`
-      );
+    const currentAnswer =
+      client.game.songList[client.game.currentSongIndex].name;
+
+    console.log(currentAnswer, typeof currentAnswer);
+
+    if (typeof currentAnswer === "string") {
+      const ratio = smartRatio(currentAnswer, content);
+      console.log(smartRatio(currentAnswer, content), currentAnswer, content);
+
+      if (ratio > MIN_RATIO) {
+        channel.send(
+          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer}. (Ratio : ${ratio})`
+        );
+        client.game = {
+          ...client.game,
+          goToNextSong: true,
+          players: {
+            ...client.game.players,
+            [author.username]: (client.game.players[author.username] || 0) + 1
+          }
+        };
+      }
+    } else if (typeof currentAnswer === "object") {
+      const ratioTitle = smartRatio(currentAnswer.title, content);
+      const ratioArtist = smartRatio(currentAnswer.artist, content);
+      console.log("ratioTitle", ratioTitle, "ratioArtist", ratioArtist);
+      if (ratioTitle > MIN_RATIO && ratioArtist > MIN_RATIO) {
+        channel.send(
+          `Bonne réponse de ${author.username}. La reponse était : ${currentAnswer.artist} - ${currentAnswer.title}.`
+        );
+        client.game = {
+          ...client.game,
+          goToNextSong: true,
+          players: {
+            ...client.game.players,
+            [author.username]: (client.game.players[author.username] || 0) + 2
+          }
+        };
+      } else if (ratioTitle > MIN_RATIO) {
+        channel.send(
+          `Bonne réponse de ${author.username}. La reponse était : ${
+            currentAnswer.title
+          }. ${
+            client.game.artistFound ? "" : "Il faut encore trouver l'artiste !"
+          }`
+        );
+        client.game = {
+          ...client.game,
+          titleFound: true,
+          goToNextSong: client.game.artistFound,
+          players: {
+            ...client.game.players,
+            [author.username]: (client.game.players[author.username] || 0) + 1
+          }
+        };
+      } else if (ratioArtist > MIN_RATIO) {
+        channel.send(
+          `Bonne réponse de ${author.username}. La reponse était : ${
+            currentAnswer.artist
+          }. ${
+            client.game.titleFound ? "" : "Il faut encore trouver le titre !"
+          }`
+        );
+        client.game = {
+          ...client.game,
+          artistFound: true,
+          goToNextSong: client.game.titleFound,
+          players: {
+            ...client.game.players,
+            [author.username]: (client.game.players[author.username] || 0) + 1
+          }
+        };
+      }
+    }
+
+    if (client.game.goToNextSong) {
       client.game = {
         ...client.game,
-        players: {
-          ...client.game.players,
-          [author.username]: (client.game.players[author.username] || 0) + 1
-        },
         currentSongIndex: client.game.currentSongIndex + 1
       };
-      await wait(2000);
-
+      await wait(10000);
       // check if game is over
       if (client.game.currentSongIndex === client.game.songList.length) {
         channel.send(`Partie terminée`);
@@ -79,10 +145,16 @@ const onMessageHandler = async message => {
         channel.send(`Chanson suivante`);
         client.game.streamer.destroy();
         await wait(2000);
-        client.game.streamer = playUrl(
-          client.game.songList[client.game.currentSongIndex].url,
-          client.game.voiceConnection
-        );
+        client.game = {
+          ...client.game,
+          streamer: playUrl(
+            client.game.songList[client.game.currentSongIndex].url,
+            client.game.voiceConnection
+          ),
+          goToNextSong: false,
+          artistFound: false,
+          titleFound: false
+        };
       }
     }
   }
