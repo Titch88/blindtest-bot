@@ -10,7 +10,7 @@ jobs:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
       - run: npm run lint
-lint:
+prettier:
   executor: node/default
   steps:
     - checkout
