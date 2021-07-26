@@ -3,10 +3,10 @@ import ytpl from "ytpl";
 import getArtistTitle from "get-artist-title";
 import fuzz from "fuzzball";
 
-const isCommand = content => content[0] === "!";
+export const isCommand = content => content[0] === "!";
 
 // building the playlist object
-const buildPlaylist = async youtubeUrl => {
+export const buildPlaylist = async youtubeUrl => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
     const extracted = getArtistTitle(title.replace(/\([^()]*\)/g, ""), {
@@ -27,12 +27,12 @@ const buildPlaylist = async youtubeUrl => {
   return result;
 };
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const playUrl = (url, connection) =>
+export const playUrl = (url, connection) =>
   connection.play(ytdl(url, { filter: "audioonly" }));
 
-const getScoreboard = players => {
+export const getScoreboard = players => {
   return Object.entries(players)
     .sort((a, b) => a[0] < b[0])
     .reduce((acc, [nick, score]) => {
@@ -53,7 +53,7 @@ currentSongIndex: 0,
 players: []
 */
 
-const resetState = client => {
+export const resetState = client => {
   if (client.game.voiceConnection) client.game.voiceConnection.disconnect();
   client.game = {
     currentlyPlaying: false,
@@ -66,7 +66,7 @@ const resetState = client => {
   };
 };
 
-const smartRatio = (answer, messageContent) => {
+export const smartRatio = (answer, messageContent) => {
   if (answer.length <= messageContent.length) {
     return fuzz.partial_ratio(answer, messageContent);
   } else {
@@ -74,12 +74,32 @@ const smartRatio = (answer, messageContent) => {
   }
 };
 
-export {
-  isCommand,
-  buildPlaylist,
-  wait,
-  playUrl,
-  getScoreboard,
-  resetState,
-  smartRatio
+export const goToNextSong = async (client, channel, skipping = false) => {
+  client.game = {
+    ...client.game,
+    currentSongIndex: client.game.currentSongIndex + 1
+  };
+  if (!skipping) {
+    await wait(10000);
+  }
+  // check if game is over
+  if (client.game.currentSongIndex === client.game.songList.length) {
+    channel.send(`Partie terminée`);
+    client.game.streamer.destroy();
+    channel.send(getScoreboard(client.game.players));
+  } else {
+    channel.send(`Chanson suivante`);
+    client.game.streamer.destroy();
+    await wait(2000);
+    client.game = {
+      ...client.game,
+      streamer: playUrl(
+        client.game.songList[client.game.currentSongIndex].url,
+        client.game.voiceConnection
+      ),
+      goToNextSong: false,
+      artistFound: false,
+      titleFound: false
+    };
+  }
 };
