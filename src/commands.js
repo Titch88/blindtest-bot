@@ -4,7 +4,7 @@ import {
   goToNextSong,
   playUrl,
   resetState,
-  wait
+  wait,
 } from "./helpers";
 
 // create a game, expect a playlist youtube. can be overwritten.
@@ -23,13 +23,12 @@ const createGame = {
         ...client.game,
         voiceChannel: message.member.voice.channel,
         textChannel: message.channel,
-        songList
+        songList,
       };
       return `Nouvelle partie demarrée. La playlist contient ${songList.length} chansons.`;
     }
   },
-  help:
-    "`!newgame <url de playlist youtube>` : crée une partie et set le salon vocal / textuel de jeu selon les salons de l'utilisateur qui a trigger la commande"
+  help: "`!newgame <url de playlist youtube>` : crée une partie et set le salon vocal / textuel de jeu selon les salons de l'utilisateur qui a trigger la commande",
 };
 
 // connect the bot to the vocal chan, and starts waiting for answers
@@ -41,28 +40,27 @@ const launchGame = {
     client.game = {
       ...client.game,
       voiceConnection,
-      currentlyPlaying: true
+      currentlyPlaying: true,
     };
     wait(1000).then(() => {
       message.channel.send("La partie demarre !");
       client.game = {
         ...client.game,
-        streamer: playUrl(client.game.songList[0].url, voiceConnection)
+        streamer: playUrl(client.game.songList[0].url, voiceConnection),
       };
     });
 
     return "la partie va demarrer dans 10s";
   },
-  help:
-    "`!launchgame` : lance la partie (a condition qu'elle ait été créé auparavant)"
+  help: "`!launchgame` : lance la partie (a condition qu'elle ait été créé auparavant)",
 };
 
 const getScore = {
   trigger: "!score",
-  action: async client => {
+  action: async (client) => {
     return getScoreboard(client.game.players);
   },
-  help: "`!score` : renvoie le score actuel"
+  help: "`!score` : renvoie le score actuel",
 };
 
 // not working
@@ -78,31 +76,29 @@ const getScore = {
 
 const endGame = {
   trigger: "!reset",
-  action: async client => {
+  action: async (client) => {
     resetState(client);
     return "reinitialisation ok";
   },
-  help: "`!reset`: reinitialise tout"
+  help: "`!reset`: reinitialise tout",
 };
 
 // skip current song
 const skipCurrentSong = {
   trigger: "!skip",
-  action : async (client, args, author, message) => {
+  action: async (client, args, author, message) => {
     let stringToReturn = "";
-    const currentAnswer = client.game.songList[client.game.currentSongIndex].name;
-    if (typeof currentAnswer === "string")
-    {
+    const currentAnswer =
+      client.game.songList[client.game.currentSongIndex].name;
+    if (typeof currentAnswer === "string") {
       stringToReturn = `Skipped song : ${currentAnswer}`;
-    }
-    else 
-    {
+    } else {
       stringToReturn = `Skipped song : ${currentAnswer.artist} - ${currentAnswer.title}`;
     }
     await goToNextSong(client, message.channel, true);
     return stringToReturn;
   },
-  help: "`!skip`: passe la chanson courante"
+  help: "`!skip`: passe la chanson courante",
 };
 
 export default [createGame, launchGame, getScore, endGame, skipCurrentSong];

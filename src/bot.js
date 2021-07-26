@@ -25,10 +25,10 @@ client.game = {
   songList: [],
   currentSongIndex: 0,
   // {[nick] : score }
-  players: []
+  players: [],
 };
 
-const onMessageHandler = async message => {
+const onMessageHandler = async (message) => {
   const { channel, author, content } = message;
   // ignoring message from himself
   if (author.id === self) return;
@@ -73,8 +73,8 @@ const onMessageHandler = async message => {
           goToNextSong: true,
           players: {
             ...client.game.players,
-            [author.username]: (client.game.players[author.username] || 0) + 1
-          }
+            [author.username]: (client.game.players[author.username] || 0) + 1,
+          },
         };
       }
     } else if (typeof currentAnswer === "object") {
@@ -90,8 +90,8 @@ const onMessageHandler = async message => {
           goToNextSong: true,
           players: {
             ...client.game.players,
-            [author.username]: (client.game.players[author.username] || 0) + 2
-          }
+            [author.username]: (client.game.players[author.username] || 0) + 2,
+          },
         };
       } else if (ratioTitle > MIN_RATIO) {
         channel.send(
@@ -107,8 +107,8 @@ const onMessageHandler = async message => {
           goToNextSong: client.game.artistFound,
           players: {
             ...client.game.players,
-            [author.username]: (client.game.players[author.username] || 0) + 1
-          }
+            [author.username]: (client.game.players[author.username] || 0) + 1,
+          },
         };
       } else if (ratioArtist > MIN_RATIO) {
         channel.send(
@@ -124,8 +124,8 @@ const onMessageHandler = async message => {
           goToNextSong: client.game.titleFound,
           players: {
             ...client.game.players,
-            [author.username]: (client.game.players[author.username] || 0) + 1
-          }
+            [author.username]: (client.game.players[author.username] || 0) + 1,
+          },
         };
       }
     }

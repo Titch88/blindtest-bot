@@ -3,36 +3,36 @@ import ytpl from "ytpl";
 import getArtistTitle from "get-artist-title";
 import fuzz from "fuzzball";
 
-export const isCommand = content => content[0] === "!";
+export const isCommand = (content) => content[0] === "!";
 
 // building the playlist object
-export const buildPlaylist = async youtubeUrl => {
+export const buildPlaylist = async (youtubeUrl) => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
     const extracted = getArtistTitle(title.replace(/\([^()]*\)/g, ""), {
       defaultArtist: "",
-      defaultTitle: ""
+      defaultTitle: "",
     });
     const name = extracted
       ? {
           artist: extracted[0],
-          title: extracted[1]
+          title: extracted[1],
         }
       : title;
     return {
       name,
-      url: shortUrl
+      url: shortUrl,
     };
   });
   return result;
 };
 
-export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const playUrl = (url, connection) =>
   connection.play(ytdl(url, { filter: "audioonly" }));
 
-export const getScoreboard = players => {
+export const getScoreboard = (players) => {
   return Object.entries(players)
     .sort((a, b) => a[0] < b[0])
     .reduce((acc, [nick, score]) => {
@@ -53,7 +53,7 @@ currentSongIndex: 0,
 players: []
 */
 
-export const resetState = client => {
+export const resetState = (client) => {
   if (client.game.voiceConnection) client.game.voiceConnection.disconnect();
   client.game = {
     currentlyPlaying: false,
@@ -62,7 +62,7 @@ export const resetState = client => {
     textChannel: null,
     songList: [],
     currentSongIndex: 0,
-    players: []
+    players: [],
   };
 };
 
@@ -77,7 +77,7 @@ export const smartRatio = (answer, messageContent) => {
 export const goToNextSong = async (client, channel, skipping = false) => {
   client.game = {
     ...client.game,
-    currentSongIndex: client.game.currentSongIndex + 1
+    currentSongIndex: client.game.currentSongIndex + 1,
   };
   if (!skipping) {
     await wait(10000);
@@ -99,7 +99,7 @@ export const goToNextSong = async (client, channel, skipping = false) => {
       ),
       goToNextSong: false,
       artistFound: false,
-      titleFound: false
+      titleFound: false,
     };
   }
 };
