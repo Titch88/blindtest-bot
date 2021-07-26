@@ -1,9 +1,10 @@
 import {
   buildPlaylist,
-  wait,
-  playUrl,
   getScoreboard,
-  resetState
+  goToNextSong,
+  playUrl,
+  resetState,
+  wait
 } from "./helpers";
 
 // create a game, expect a playlist youtube. can be overwritten.
@@ -84,4 +85,24 @@ const endGame = {
   help: "`!reset`: reinitialise tout"
 };
 
-export default [createGame, launchGame, getScore, endGame];
+// skip current song
+const skipCurrentSong = {
+  trigger: "!skip",
+  action : async (client, channel) => {
+    let stringToReturn = "";
+    const currentAnswer = client.game.songList[client.game.currentSongIndex].name;
+    if (typeof currentAnswer === "string")
+    {
+      stringToReturn = `Skipped song : ${currentAnswer}`;
+    }
+    else 
+    {
+      stringToReturn = `Skipped song : ${currentAnswer.artist} - ${currentAnswer.title}`;
+    }
+    goToNextSong(client, channel);
+    return stringToReturn;
+  },
+  help: "`!skip`: passe la chanson courante"
+};
+
+export default [createGame, launchGame, getScore, endGame, skipCurrentSong];

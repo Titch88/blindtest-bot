@@ -4,7 +4,7 @@ require("dotenv").config();
 import Discord from "discord.js";
 
 import commands from "./commands";
-import { isCommand, wait, playUrl, getScoreboard, smartRatio } from "./helpers";
+import { isCommand, goToNextSong, smartRatio } from "./helpers";
 // Create an instance of a Discord client
 const client = new Discord.Client();
 
@@ -131,31 +131,7 @@ const onMessageHandler = async message => {
     }
 
     if (client.game.goToNextSong) {
-      client.game = {
-        ...client.game,
-        currentSongIndex: client.game.currentSongIndex + 1
-      };
-      await wait(10000);
-      // check if game is over
-      if (client.game.currentSongIndex === client.game.songList.length) {
-        channel.send(`Partie terminée`);
-        client.game.streamer.destroy();
-        channel.send(getScoreboard(client.game.players));
-      } else {
-        channel.send(`Chanson suivante`);
-        client.game.streamer.destroy();
-        await wait(2000);
-        client.game = {
-          ...client.game,
-          streamer: playUrl(
-            client.game.songList[client.game.currentSongIndex].url,
-            client.game.voiceConnection
-          ),
-          goToNextSong: false,
-          artistFound: false,
-          titleFound: false
-        };
-      }
+      goToNextSong(client, channel);
     }
   }
 };
