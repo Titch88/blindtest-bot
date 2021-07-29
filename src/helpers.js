@@ -5,15 +5,20 @@ import fuzz from "fuzzball";
 
 export const isCommand = (content) => content[0] === "!";
 
+const sanitizeTitle = (title) => {
+  return title
+    .replace(/official audio/gi, "")
+    .replace(/official video/gi, "")
+    .replace(/official music video/gi, "")
+    .replace(/official lyrics video/gi, "")
+    .replace(/\([^()]*\)/g, "");
+};
+
 // building the playlist object
 export const buildPlaylist = async (youtubeUrl) => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
-    title = title.replace(/official audio/gi, "");
-    title = title.replace(/official video/gi, "");
-    title = title.replace(/official music video/gi, "");
-    title = title.replace(/official lyrics video/gi, "");
-    const extracted = getArtistTitle(title.replace(/\([^()]*\)/g, ""), {
+    const extracted = getArtistTitle(sanitizeTitle(title), {
       defaultArtist: "",
       defaultTitle: "",
     });
