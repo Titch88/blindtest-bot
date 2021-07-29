@@ -9,6 +9,10 @@ export const isCommand = (content) => content[0] === "!";
 export const buildPlaylist = async (youtubeUrl) => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
+    title = title.replace(/official audio/gi, "");
+    title = title.replace(/official video/gi, "");
+    title = title.replace(/official music video/gi, "");
+    title = title.replace(/official lyrics video/gi, "");
     const extracted = getArtistTitle(title.replace(/\([^()]*\)/g, ""), {
       defaultArtist: "",
       defaultTitle: "",
