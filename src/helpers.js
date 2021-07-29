@@ -18,7 +18,8 @@ const sanitizeTitle = (title) => {
 export const buildPlaylist = async (youtubeUrl) => {
   const playlist = await ytpl(youtubeUrl);
   const result = playlist.items.map(({ title, shortUrl }) => {
-    const extracted = getArtistTitle(sanitizeTitle(title), {
+    const sanitizedTitle = sanitizeTitle(title);
+    const extracted = getArtistTitle(sanitizedTitle, {
       defaultArtist: "",
       defaultTitle: "",
     });
@@ -27,7 +28,7 @@ export const buildPlaylist = async (youtubeUrl) => {
           artist: extracted[0],
           title: extracted[1],
         }
-      : title;
+      : sanitizedTitle;
     return {
       name,
       url: shortUrl,
