@@ -7,11 +7,13 @@ export const isCommand = (content) => content[0] === "!";
 
 const sanitizeTitle = (title) => {
   return title
+    .replace(/\([^()]*\)/g, "")
     .replace(/official audio/gi, "")
     .replace(/official video/gi, "")
     .replace(/official music video/gi, "")
     .replace(/official lyrics video/gi, "")
-    .replace(/\([^()]*\)/g, "");
+    .replace(/| napalm records/gi, "")
+    .replace(/officiel/gi, "");
 };
 
 // building the playlist object
