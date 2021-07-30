@@ -50,7 +50,7 @@ export const playUrl = (url, connection) => {
 
 export const getScoreboard = (players) => {
   return Object.entries(players)
-    .sort((a, b) => a[1] < b[1])
+    .sort((a, b) => (a[1] > b[1] ? -1 : 1))
     .reduce((acc, [nick, score]) => {
       return `${acc}${nick} - ${score} points\n`;
     }, "\n");
@@ -97,6 +97,7 @@ export const formatSongName = (name) => {
 export const goToNextSong = async (client, channel, skip = false) => {
   client.game = {
     ...client.game,
+    wait: true,
     currentSongIndex: client.game.currentSongIndex + 1,
   };
   if (!skip) {
@@ -126,6 +127,7 @@ export const goToNextSong = async (client, channel, skip = false) => {
     client.game = {
       ...client.game,
       streamer,
+      wait: false,
       goToNextSong: false,
       artistFound: false,
       titleFound: false,

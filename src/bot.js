@@ -20,6 +20,7 @@ client.game = {
   titleFound: false,
   artistFound: false,
   goToNextSong: false,
+  wait: false,
 
   // {name : "name of the song", url: 'url of youtube link'}
   songList: [],
@@ -53,7 +54,8 @@ const onMessageHandler = async (message) => {
     }
   } else if (
     client.game.currentlyPlaying &&
-    channel.id === client.game.textChannel.id
+    channel.id === client.game.textChannel.id &&
+    !client.game.wait
   ) {
     const currentAnswer =
       client.game.songList[client.game.currentSongIndex].name;
@@ -93,7 +95,7 @@ const onMessageHandler = async (message) => {
             [author.username]: (client.game.players[author.username] || 0) + 2,
           },
         };
-      } else if (ratioTitle > MIN_RATIO) {
+      } else if (ratioTitle > MIN_RATIO && !client.game.titleFound) {
         channel.send(
           `Bonne réponse de ${author.username}. La reponse était : ${
             currentAnswer.title
@@ -110,7 +112,7 @@ const onMessageHandler = async (message) => {
             [author.username]: (client.game.players[author.username] || 0) + 1,
           },
         };
-      } else if (ratioArtist > MIN_RATIO) {
+      } else if (ratioArtist > MIN_RATIO && !client.game.artistFound) {
         channel.send(
           `Bonne réponse de ${author.username}. La reponse était : ${
             currentAnswer.artist
