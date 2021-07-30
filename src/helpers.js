@@ -7,11 +7,17 @@ export const isCommand = (content) => content[0] === "!";
 
 const sanitizeTitle = (title) => {
   return title
-    .replace(/official audio/gi, "")
-    .replace(/official video/gi, "")
+    .replace(/\([^()]*\)/g, "")
     .replace(/official music video/gi, "")
     .replace(/official lyrics video/gi, "")
-    .replace(/\([^()]*\)/g, "");
+    .replace(/official audio/gi, "")
+    .replace(/official video/gi, "")
+    .replace(/official/gi, "")
+    .replace(/| napalm records/gi, "")
+    .replace(/officiel/gi, "")
+    .replace(/ ost /gi, "")
+    .replace(/credits/gi, "")
+    .replace(/original soundtrack/gi, "");
 };
 
 // building the playlist object
@@ -50,7 +56,7 @@ export const playUrl = (url, connection) => {
 
 export const getScoreboard = (players) => {
   return Object.entries(players)
-    .sort((a, b) => a[1] < b[1])
+    .sort((a, b) => (a[1] > b[1] ? -1 : 1))
     .reduce((acc, [nick, score]) => {
       return `${acc}${nick} - ${score} points\n`;
     }, "\n");
@@ -97,6 +103,7 @@ export const formatSongName = (name) => {
 export const goToNextSong = async (client, channel, skip = false) => {
   client.game = {
     ...client.game,
+    wait: true,
     currentSongIndex: client.game.currentSongIndex + 1,
   };
   if (!skip) {
@@ -126,6 +133,7 @@ export const goToNextSong = async (client, channel, skip = false) => {
     client.game = {
       ...client.game,
       streamer,
+      wait: false,
       goToNextSong: false,
       artistFound: false,
       titleFound: false,
