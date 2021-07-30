@@ -8,12 +8,16 @@ export const isCommand = (content) => content[0] === "!";
 const sanitizeTitle = (title) => {
   return title
     .replace(/\([^()]*\)/g, "")
-    .replace(/official audio/gi, "")
-    .replace(/official video/gi, "")
     .replace(/official music video/gi, "")
     .replace(/official lyrics video/gi, "")
+    .replace(/official audio/gi, "")
+    .replace(/official video/gi, "")
+    .replace(/official/gi, "")
     .replace(/| napalm records/gi, "")
-    .replace(/officiel/gi, "");
+    .replace(/officiel/gi, "")
+    .replace(/ ost /gi, "")
+    .replace(/credits/gi, "")
+    .replace(/original soundtrack/gi, "");
 };
 
 // building the playlist object
